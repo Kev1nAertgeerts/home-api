@@ -6,4 +6,5 @@ load_dotenv()
 
 BASE_URL = os.getenv("FAST_URL")
 
-print(requests.get(url=f"{BASE_URL}/get-members/").json())
+r = requests.get(url=f"{BASE_URL}/get-oneday/", json={"date": "2024-12-10"}).json()
+print(r["summed_consumptions"])

@@ -2,10 +2,10 @@ from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Annotated
 from database import models
-from datetime import date
+from datetime import date, datetime
 from database.database import engine, SessionLocal
 from sqlalchemy.orm import Session
-from sqlalchemy import select, Date, cast
+from sqlalchemy import select, Date, cast,func
 from utils import check_api_key, create_nested_dict
 
 app = FastAPI()
@@ -38,6 +38,9 @@ class PriceBase(BaseModel):
 
 class KeyBase(BaseModel):
     key: str
+
+class DateBase(BaseModel):
+    date: date
 
 @app.get("/read-data/")
 async def read_data(key: KeyBase, db: db_dependency):
@@ -104,9 +107,9 @@ async def make_consumption(data: ConsumptionRequestData, db: db_dependency):
     return {"member": f_member, "drink": f_drink}
 
 
-@app.get("/get-today/")
-async def get_today(db: db_dependency):
-    s = select(models.Consumption).filter(cast(models.Consumption.date,Date) == date.today())
+@app.get("/get-oneday/")
+async def get_today(data: DateBase, db: db_dependency):
+    s = select(models.Consumption).filter(cast(models.Consumption.date,Date) == data.date)
     rp = db.execute(s)
     data = [dict(row._mapping) for row in rp.fetchall()]
  
@@ -121,3 +124,4 @@ async def get_today(db: db_dependency):
     drinks = [dict(row._mapping) for row in rp.fetchall()]
     
     return {"summed_consumptions":summed_consumptions, "drinks":drinks, "members": members}
+    
