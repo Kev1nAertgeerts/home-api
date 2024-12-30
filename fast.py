@@ -3,16 +3,16 @@ from pydantic import BaseModel
 from typing import Annotated
 from database import models
 from datetime import date, datetime
-from database.database import engine, SessionLocal
+from database.database import drank_engine, drank_SessionLocal
 from sqlalchemy.orm import Session
-from sqlalchemy import select, Date, cast,func
+from sqlalchemy import select, Date, cast,func, desc, delete
 from utils import check_api_key, create_nested_dict
 
 app = FastAPI()
-models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=drank_engine)
 
 def get_db():
-    db = SessionLocal()
+    db = drank_SessionLocal()
     try:
         yield db
     finally:
@@ -105,6 +105,32 @@ async def make_consumption(data: ConsumptionRequestData, db: db_dependency):
     db.refresh(db_consumption)
 
     return {"member": f_member, "drink": f_drink}
+
+# @app.post("/delete-consumption/")
+# async def delete_consumption(data: ConsumptionRequestData, db: db_dependency):
+#     s_member = select(models.Member).where(models.Member.first_name.like(data.first_name))
+#     rp_member = db.execute(s_member)
+#     f_member = [dict(row._mapping) for row in rp_member.fetchall()]
+#     member_id = f_member[0]["Member"].id
+
+#     s_drink = select(models.Drink).where(models.Drink.name.like(data.name))
+#     rp_drink = db.execute(s_drink)
+#     f_drink = [dict(row._mapping) for row in rp_drink.fetchall()]
+#     drink_id = f_drink[0]["Drink"].id
+
+#     # Step 1: Fetch the latest consumption to delete
+#     latest_consumption_query = delete(models.Consumption).where(
+#         models.Consumption.member == member_id,
+#         models.Consumption.drink == drink_id,
+#         models.Consumption.date == datetime.today().date(),).order_by(desc(models.Consumption.date)).limit(1)
+    
+#     print(latest_consumption_query)
+    
+
+
+
+
+
 
 
 @app.get("/get-oneday/")

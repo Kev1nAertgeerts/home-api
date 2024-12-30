@@ -1,10 +1,11 @@
 import requests
 from dotenv import load_dotenv
 import os
+from datetime import date
 
 load_dotenv()
 
 BASE_URL = os.getenv("FAST_URL")
 
-r = requests.get(url=f"{BASE_URL}/get-oneday/", json={"date": "2024-12-10"}).json()
-print(r["summed_consumptions"])
+r = requests.post(url=f"{BASE_URL}/delete-consumption/", json={"member":"Jef", "drink":"Cola"}).json()
+#print(date.today())

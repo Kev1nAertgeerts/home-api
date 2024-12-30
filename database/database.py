@@ -7,10 +7,10 @@ import os
 
 load_dotenv()
 
-URL_DATABASE = f'postgresql://{os.getenv("POSTGRES_USERNAME")}:{os.getenv("POSTGRES_PASSWORD")}@localhost:5432/{os.getenv("DATABASE_NAME")}'
+DRANK_URL_DATABASE = f'postgresql://{os.getenv("POSTGRES_USERNAME")}:{os.getenv("POSTGRES_PASSWORD")}@localhost:5432/{os.getenv("DATABASE_NAME")}'
 
-engine = create_engine(URL_DATABASE)
+drank_engine = create_engine(DRANK_URL_DATABASE)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+drank_SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=drank_engine)
 
 Base = declarative_base()
