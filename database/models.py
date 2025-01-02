@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, Float, Column, ForeignKey, Integer, String
+from sqlalchemy import DateTime, Float, Column, ForeignKey, Integer, String, Boolean
 from database.database import Base
 from datetime import datetime
 
@@ -45,4 +45,15 @@ class Consumption(Base):
     member = Column(Integer, ForeignKey("member.id"))
     drink = Column(Integer, ForeignKey("drink.id"))
     date = Column(DateTime, default=datetime.now)
+    #payed = Column(Boolean, default=False)
+    paydate = Column(DateTime, nullable=True)
 
+
+class Payments(Base):
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    member = Column(Integer, ForeignKey("member.id"))
+    date = Column(DateTime, default=datetime.now)
+    quantity = Column(Float, index=True)
+    verified = Column(Boolean, default=False)
