@@ -42,6 +42,9 @@ class KeyBase(BaseModel):
 class DateBase(BaseModel):
     date: date
 
+class UnpayedBase(BaseModel):
+    first_name: str
+
 @app.get("/read-data/")
 async def read_data(key: KeyBase, db: db_dependency):
     if check_api_key(key.key):
@@ -149,5 +152,30 @@ async def get_today(data: DateBase, db: db_dependency):
     rp = db.execute(s)
     drinks = [dict(row._mapping) for row in rp.fetchall()]
     
-    return {"summed_consumptions":summed_consumptions, "drinks":drinks, "members": members}
-    
+    return {"summed_consumptions":summed_consumptions, "drinks":drinks, "members": members, "data":data}
+
+@app.get("/get-unpayed/")
+async def get_unpayed(data: UnpayedBase, db: db_dependency):
+    s_member = select(models.Member).where(models.Member.first_name.like(data.first_name))
+    rp_member = db.execute(s_member)
+    f_member = [dict(row._mapping) for row in rp_member.fetchall()]
+    member_id = f_member[0]["Member"].id
+
+    s_unpayed = select(models.Consumption).where(models.Consumption.member == member_id, models.Consumption.paydate.is_(None))
+    rp_unpayed = db.execute(s_unpayed)
+    f_unpayed = [dict(row._mapping) for row in rp_unpayed.fetchall()]
+
+    total_price = 0
+
+    for i in f_unpayed:
+        s_drink = select(models.Drink).where(models.Drink.id == i["Consumption"].drink)
+        rp_drink = db.execute(s_drink)
+        f_drink = rp_drink.fetchall()[0]
+        
+        s_price = select(models.Price).where(models.Price.id == f_drink[0].price)
+        rp_price = db.execute(s_price)
+        f_price = rp_price.fetchall()[0]
+
+        total_price += f_price[0].price
+
+    return {"unpayed":f_unpayed, "total_price":total_price}
